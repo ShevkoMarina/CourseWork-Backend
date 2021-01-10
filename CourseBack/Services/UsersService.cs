@@ -20,7 +20,7 @@ namespace CourseBack.Services
             return _userRepository.AddUser(user);
         }
 
-        public (string Error, User user) AuthorizeUser(UserRequest request)
+        public (string Error, int id) AuthorizeUser(UserRequest request)
         {
             return _userRepository.AuthorizeUser(request);
         }

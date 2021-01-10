@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace CourseBack.Repository
 {
@@ -30,7 +29,8 @@ namespace CourseBack.Repository
             }
         }
 
-        public (string Error, User user) AuthorizeUser(UserRequest request)
+        // по идее база должны вернуть только юзера, а уже сервис разбирается в ошибках
+        public (string Error, int id) AuthorizeUser(UserRequest request)
         {
             try
             {
@@ -40,14 +40,14 @@ namespace CourseBack.Repository
 
                 if (user != null)
                 {
-                    return (null, user);
+                    return (null, user.Id);
                 }
 
-                return ("Wrong password", null);
+                return ("Wrong password", -1);
             }
             catch (Exception e)
             {
-                return (e.Message, null);
+                return (e.Message, -1);
             }
         }
 

@@ -17,6 +17,6 @@ namespace CourseBack.Services
 
         string DeleteAllUsers();
 
-        (string Error, User user) AuthorizeUser(UserRequest request);
+        (string Error, int id) AuthorizeUser(UserRequest request);
     }
 }

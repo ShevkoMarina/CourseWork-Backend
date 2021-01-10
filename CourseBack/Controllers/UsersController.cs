@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using CourseBack.Models;
 using CourseBack.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -26,9 +23,19 @@ namespace CourseBack.Controllers
             var result = _userService.AuthorizeUser(user);
             if (result.Error != null)
             {
-                return BadRequest(result.Error);
+                var problemDetals = new ProblemDetails
+                {
+                    Status = 404,
+                    Title = "Wrong login or password"
+                };
+
+                return new ObjectResult(problemDetals)
+                {
+                    ContentTypes = { "application/problem+json" },
+                    StatusCode = 404
+                };
             }
-            return Ok(result.user);
+            return Ok(result.id);
         }
 
         [HttpGet]
@@ -55,7 +62,6 @@ namespace CourseBack.Controllers
             {
                 return Ok(result.user);
             }
-
             return BadRequest(result.Error);
         }
 
