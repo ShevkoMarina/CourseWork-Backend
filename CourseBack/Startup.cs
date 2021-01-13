@@ -36,7 +36,6 @@ namespace CourseBack
             });
 
             services.AddScoped<IUsersService, UsersService>();
-
             services.AddScoped<IUsersRepository, UsersRepository>();
         }
 
@@ -46,7 +45,7 @@ namespace CourseBack
             app.UseSwagger();
             app.UseSwaggerUI(c =>
             {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "MSP Photo API");
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Course work API");
                 c.RoutePrefix = "swagger";
             });
 

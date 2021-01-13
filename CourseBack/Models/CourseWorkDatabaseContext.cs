@@ -8,7 +8,11 @@ namespace CourseBack.Models
 {
     public partial class CourseWorkDatabaseContext : DbContext
     {
+        // разобраться с автогенерируемыми типами для полей
+
         public virtual DbSet<User> Users { get; set; }
+        public virtual DbSet<SavedItem> Items { get; set; }
+
         public CourseWorkDatabaseContext()
         {
         }

@@ -4,14 +4,16 @@ using CourseBack.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace CourseBack.Migrations
 {
     [DbContext(typeof(CourseWorkDatabaseContext))]
-    partial class CourseWorkDatabaseContextModelSnapshot : ModelSnapshot
+    [Migration("20210113185747_items-table-change-image-url")]
+    partial class itemstablechangeimageurl
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
