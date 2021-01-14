@@ -6,10 +6,11 @@ using System.Threading.Tasks;
 
 namespace CourseBack.Repository
 {
+    
     public class RecognizedItemsRepository : IRecognizedItemsRepository
     {
-        private readonly CourseWorkDatabaseContext _context;
-        public RecognizedItemsRepository(CourseWorkDatabaseContext context)
+        private readonly CourseWorkDBContext _context;
+        public RecognizedItemsRepository(CourseWorkDBContext context)
         {
             _context = context;
         }
@@ -49,9 +50,10 @@ namespace CourseBack.Repository
             }
         }
 
-        public (string Error, string Url) UploadToBlob(UserPhoto photo)
+        public (string Error, string Url) UploadToBlob(UserPhotoRequest photo)
         {
             throw new NotImplementedException();
         }
     }
+
 }

@@ -30,7 +30,7 @@ namespace CourseBack.Services
         }
 
         // вынести а репозиторий
-        public async Task<(string Error, string Url)> UploadToBlob(UserPhoto userPhoto)
+        public async Task<(string Error, string Url)> UploadToBlob(UserPhotoRequest userPhoto)
         {
             try
             {

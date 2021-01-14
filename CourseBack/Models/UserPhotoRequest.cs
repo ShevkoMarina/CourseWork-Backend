@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace CourseBack.Models
 {
-    public class UserPhoto
+    public class UserPhotoRequest
     {
         [FromForm(Name = "file")]
         public IFormFile Photo { get; set; }

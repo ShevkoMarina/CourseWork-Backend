@@ -26,7 +26,8 @@ namespace CourseBack
         public void ConfigureServices(IServiceCollection services)
         {
             var connection = Configuration.GetConnectionString("CourseWorkDatabase");
-            services.AddDbContext<CourseWorkDatabaseContext>(options => options.UseSqlServer(connection));
+
+            services.AddDbContext<CourseWorkDBContext>(options => options.UseSqlServer(connection));
             services.AddControllers();
             services.AddMvc(options => options.EnableEndpointRouting = false);
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_3_0);

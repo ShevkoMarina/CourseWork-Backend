@@ -5,32 +5,35 @@ using System.Linq;
 
 namespace CourseBack.Repository
 {
+    
     public class UsersRepository : IUsersRepository
     {
-        private readonly CourseWorkDatabaseContext _context;
+        
 
-        public UsersRepository(CourseWorkDatabaseContext context)
+        private readonly CourseWorkDBContext _context;
+
+        public UsersRepository(CourseWorkDBContext context)
         {
             _context = context;
         }
 
-        public (string Error, int id) AddUser(UserRequest user)
+        public (string Error, Guid id) AddUser(UserRequest user)
         {
             try
             {
                 _context.Users.Add(new User { Login = user.Login, Password = user.Password });
                 _context.SaveChanges();
 
-                return (null, _context.Users.ToList().Last().Id);
+                return (null, _context.Users.Last().Id);
             }
             catch (Exception e)
             {
-                return (e.Message, -1);
+                return (e.Message, Guid.Empty);
             }
         }
 
         // по идее база должны вернуть только юзера, а уже сервис разбирается в ошибках
-        public (string Error, int id) AuthorizeUser(UserRequest request)
+        public (string Error, Guid id) AuthorizeUser(UserRequest request)
         {
             try
             {
@@ -43,11 +46,11 @@ namespace CourseBack.Repository
                     return (null, user.Id);
                 }
 
-                return ("Wrong password", -1);
+                return ("Wrong password", Guid.Empty);
             }
             catch (Exception e)
             {
-                return (e.Message, -1);
+                return (e.Message, Guid.Empty);
             }
         }
 
@@ -67,7 +70,7 @@ namespace CourseBack.Repository
             }
         }
 
-        public string DeleteUser(int id)
+        public string DeleteUser(Guid id)
         {
             try
             {
@@ -94,7 +97,7 @@ namespace CourseBack.Repository
             }
         }
 
-        public (User user, string Error) GetUser(int id)
+        public (User user, string Error) GetUser(Guid id)
         {
             try
             {
@@ -125,4 +128,5 @@ namespace CourseBack.Repository
             }
         }
     }
+    
 }

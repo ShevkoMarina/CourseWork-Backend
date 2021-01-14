@@ -50,7 +50,7 @@ namespace CourseBack.Controllers
         }
 
         [HttpGet("{id}")]
-        public IActionResult GetUser(int id)
+        public IActionResult GetUser(Guid id)
         {
             var result = _userService.GetUser(id);
             if (result.user == null)
@@ -89,7 +89,7 @@ namespace CourseBack.Controllers
         }
 
         [HttpDelete("{id}")]
-        public IActionResult DeleteUser(int id)
+        public IActionResult DeleteUser(Guid id)
         {
             var result = _userService.DeleteUser(id);
 

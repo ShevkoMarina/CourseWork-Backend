@@ -17,7 +17,6 @@ namespace CourseBack.Controllers
     public class SavedItemsController : Controller
     {
        
-
         private readonly ISavedItemsService _savedItemsService;
 
         public SavedItemsController(ISavedItemsService savedItemsService)
@@ -29,17 +28,13 @@ namespace CourseBack.Controllers
         // parse user id to guid
 
         [HttpPost]
-        public async Task<IActionResult> UploadToBlob([FromForm] UserPhoto userPhoto)
+        public async Task<IActionResult> UploadToBlob([FromForm] UserPhotoRequest request)
         {
-            try
-            {
-                var result = await _savedItemsService.UploadToBlob(userPhoto);
-                return Ok(result.Url);
-            }
-            catch (Exception e)
-            {
-                return BadRequest("BLOB DO BRRRR");
-            }
+           
+            var uploadToBlobResult = await _savedItemsService.UploadToBlob(request);
+           // await _savedItemsService.FindSimularGoods(uploadToBlobResult.Url, request.UserId);
+            
+            return BadRequest("BLOB DO BRRRR");
         }
 
         [HttpGet]
@@ -68,7 +63,3 @@ namespace CourseBack.Controllers
         }
     }
 }
-
-
-
-

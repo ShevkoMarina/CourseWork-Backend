@@ -15,12 +15,12 @@ namespace CourseBack.Services
             _userRepository = userRepository;
         }
 
-        public (string Error, int id) AddUser(UserRequest user)
+        public (string Error, Guid id) AddUser(UserRequest user)
         {
             return _userRepository.AddUser(user);
         }
 
-        public (string Error, int id) AuthorizeUser(UserRequest request)
+        public (string Error, Guid id) AuthorizeUser(UserRequest request)
         {
             return _userRepository.AuthorizeUser(request);
         }
@@ -30,7 +30,7 @@ namespace CourseBack.Services
             return _userRepository.DeleteAllUsers();
         }
 
-        public string DeleteUser(int id)
+        public string DeleteUser(Guid id)
         {
             return _userRepository.DeleteUser(id);
         }
@@ -40,7 +40,7 @@ namespace CourseBack.Services
             return _userRepository.GetAllUsers();
         }
 
-        public (User user, string Error) GetUser(int id)
+        public (User user, string Error) GetUser(Guid id)
         {
             return _userRepository.GetUser(id);
         }

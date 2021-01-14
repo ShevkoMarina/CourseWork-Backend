@@ -8,7 +8,7 @@ namespace CourseBack.Repository
 {
     public interface IRecognizedItemsRepository
     {
-        public (string Error, string Url) UploadToBlob(UserPhoto photo);
+        public (string Error, string Url) UploadToBlob(UserPhotoRequest photo);
         public string AddItem(SavedItemRequest item);
         public IEnumerable<SavedItem> GetSavedItems();
     }

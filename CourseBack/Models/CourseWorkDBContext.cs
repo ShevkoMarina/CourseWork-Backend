@@ -1,23 +1,22 @@
 ﻿using System;
+using CourseBack.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
 #nullable disable
 
-namespace CourseBack.Models
+namespace CourseBack
 {
-    public partial class CourseWorkDatabaseContext : DbContext
+    public partial class CourseWorkDBContext : DbContext
     {
-        // разобраться с автогенерируемыми типами для полей
-
         public virtual DbSet<User> Users { get; set; }
         public virtual DbSet<SavedItem> Items { get; set; }
 
-        public CourseWorkDatabaseContext()
+        public CourseWorkDBContext()
         {
         }
 
-        public CourseWorkDatabaseContext(DbContextOptions<CourseWorkDatabaseContext> options)
+        public CourseWorkDBContext(DbContextOptions<CourseWorkDBContext> options)
             : base(options)
         {
         }
@@ -26,8 +25,7 @@ namespace CourseBack.Models
         {
             if (!optionsBuilder.IsConfigured)
             {
-                // разобраться с этим
-                optionsBuilder.UseSqlServer("Server=course-work-db-server.database.windows.net;Database=CourseWorkDatabase;Trusted_Connection=False;Encrypt=True;User ID=mnshevko;Password=Kfdhtynbq1;");
+                optionsBuilder.UseSqlServer("Server=tcp:course-work-db-server.database.windows.net,1433;Initial Catalog=CourseWorkDB;User ID=mnshevko;Password=Kfdhtynbq1;Trusted_Connection=False;Encrypt=True;");
             }
         }
 

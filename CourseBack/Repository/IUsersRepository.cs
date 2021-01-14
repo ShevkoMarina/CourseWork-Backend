@@ -1,8 +1,6 @@
 ﻿using CourseBack.Models;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace CourseBack.Repository
 {
@@ -10,16 +8,16 @@ namespace CourseBack.Repository
     {
         (IEnumerable<User> Users, string Error) GetAllUsers();
 
-        (User user, string Error) GetUser(int id);
+        (User user, string Error) GetUser(Guid id);
 
-        (string Error, int id) AddUser(UserRequest user);
+        (string Error, Guid id) AddUser(UserRequest user);
 
         string UpdateUser(User user);
 
-        string DeleteUser(int id);
+        string DeleteUser(Guid id);
 
         string DeleteAllUsers();
 
-        (string Error, int id) AuthorizeUser(UserRequest request);
+        (string Error, Guid id) AuthorizeUser(UserRequest request);
     }
 }

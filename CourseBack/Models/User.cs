@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CourseBack.Models
@@ -8,7 +9,7 @@ namespace CourseBack.Models
     {
         [Key]
         [Column("ID")]
-        public int Id { get; set; }
+        public Guid Id { get; set; }
 
         [Required]
         [Column("user_login")]
