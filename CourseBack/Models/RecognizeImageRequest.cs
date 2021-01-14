@@ -5,7 +5,9 @@ using System.Threading.Tasks;
 
 namespace CourseBack.Models
 {
-    public class ItemImage
+    public class RecognizeImageRequest
     {
+        public Guid UserId { get; set; }
+        public string ImageUri { get; set; }
     }
 }

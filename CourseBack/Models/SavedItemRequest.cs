@@ -8,7 +8,7 @@ namespace CourseBack.Models
     {
         public Guid UserId { get; set; }
         public string ImageUrl { get; set; }
-        public string ItemName { get; set; }
+        public string Name { get; set; }
         public string Price { get; set; }
         public string WebUrl { get; set; }
     }

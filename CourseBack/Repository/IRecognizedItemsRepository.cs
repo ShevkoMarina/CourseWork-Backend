@@ -10,6 +10,6 @@ namespace CourseBack.Repository
     {
         public (string Error, string Url) UploadToBlob(UserPhoto photo);
         public string AddItem(SavedItemRequest item);
-        public IReadOnlyCollection<SavedItemRequest> GetSavedItems();
+        public IEnumerable<SavedItem> GetSavedItems();
     }
 }

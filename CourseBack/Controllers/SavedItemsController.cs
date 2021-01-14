@@ -16,8 +16,7 @@ namespace CourseBack.Controllers
     [ApiController]
     public class SavedItemsController : Controller
     {
-        string conntectionString = "DefaultEndpointsProtocol=https;AccountName=neuralphotosblob;AccountKey=RefSuxn7AiKuRE4mkfeTWq1PY/P/" +
-            "b8UgOuZBzugzWpfwoy2TFLPWsPFyf+JyOO0NucJvcJK4aLXbnenmkh5GxQ==;EndpointSuffix=core.windows.net";
+       
 
         private readonly ISavedItemsService _savedItemsService;
 
@@ -28,19 +27,14 @@ namespace CourseBack.Controllers
 
 
         // parse user id to guid
+
         [HttpPost]
         public async Task<IActionResult> UploadToBlob([FromForm] UserPhoto userPhoto)
         {
             try
             {
-                BlobServiceClient blobServiceClient = new BlobServiceClient(conntectionString);
-                string containerName = Guid.NewGuid().ToString();
-                BlobContainerClient containerClient = await blobServiceClient.CreateBlobContainerAsync(containerName);
-                containerClient.SetAccessPolicy(PublicAccessType.Blob);
-                BlobClient blobClient = containerClient.GetBlobClient(userPhoto.Photo.FileName);
-
-                await blobClient.UploadAsync(userPhoto.Photo.OpenReadStream(), new BlobHttpHeaders { ContentType = userPhoto.Photo.ContentType });
-                return Ok(blobClient.Uri);
+                var result = await _savedItemsService.UploadToBlob(userPhoto);
+                return Ok(result.Url);
             }
             catch (Exception e)
             {
@@ -54,11 +48,27 @@ namespace CourseBack.Controllers
             return Ok();
         }
 
+        // разобраться с асинхроннкой
+        [Route("[action]")]
         [HttpPost]
         public async Task<IActionResult> AddItem([FromBody] SavedItemRequest item)
         {
             var result = _savedItemsService.AddItem(item);
             return Ok();
         }
+
+        // не хочет принимать интегер как гуид
+        // возвращать не все а штук 6
+        [Route("[action]")]
+        [HttpPost]
+        public async Task<IActionResult> RecognizeItem(RecognizeImageRequest request)
+        {
+            var result = await _savedItemsService.FindSimularGoods(request.ImageUri, request.UserId);
+            return Ok(result);
+        }
     }
 }
+
+
+
+

@@ -8,8 +8,10 @@ namespace CourseBack.Services
 {
     public interface ISavedItemsService
     {
-        public (string Error, string Url) UploadToBlob(UserPhoto photo);
+        public Task<(string Error, string Url)> UploadToBlob(UserPhoto photo);
         public string AddItem(SavedItemRequest item);
-        public IEnumerable<SavedItemRequest> GetSavedItems();
+        public IEnumerable<SavedItem> GetSavedItems();
+
+        public Task<IEnumerable<SavedItemRequest>> FindSimularGoods(string imageUrl, Guid userId);
     }
 }

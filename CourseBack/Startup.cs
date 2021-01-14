@@ -36,6 +36,10 @@ namespace CourseBack
             });
 
             services.AddScoped<IUsersService, UsersService>();
+            services.AddScoped<ISavedItemsService, SavedItemsService>();
+
+
+            services.AddScoped<IRecognizedItemsRepository, RecognizedItemsRepository>();
             services.AddScoped<IUsersRepository, UsersRepository>();
         }
 
