@@ -1,7 +1,9 @@
 ﻿using System;
 using CourseBack.Models;
 using Microsoft.EntityFrameworkCore;
+using System.Configuration;
 using Microsoft.EntityFrameworkCore.Metadata;
+
 
 #nullable disable
 
@@ -25,6 +27,7 @@ namespace CourseBack
         {
             if (!optionsBuilder.IsConfigured)
             {
+               
                 optionsBuilder.UseSqlServer("Server=tcp:course-work-db-server.database.windows.net,1433;Initial Catalog=CourseWorkDB;User ID=mnshevko;Password=Kfdhtynbq1;Trusted_Connection=False;Encrypt=True;");
             }
         }

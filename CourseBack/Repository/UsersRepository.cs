@@ -17,6 +17,8 @@ namespace CourseBack.Repository
             _context = context;
         }
 
+        // думаю стоит запретить делать одинаковые логины
+        // проверить что еще упало из за гуида
         public (string Error, Guid id) AddUser(UserRequest user)
         {
             try
@@ -24,13 +26,14 @@ namespace CourseBack.Repository
                 _context.Users.Add(new User { Login = user.Login, Password = user.Password });
                 _context.SaveChanges();
 
-                return (null, _context.Users.Last().Id);
+                return (null, _context.Users.Where(x => x.Login == user.Login).FirstOrDefault().Id);
             }
             catch (Exception e)
             {
                 return (e.Message, Guid.Empty);
             }
         }
+
 
         // по идее база должны вернуть только юзера, а уже сервис разбирается в ошибках
         public (string Error, Guid id) AuthorizeUser(UserRequest request)
@@ -128,5 +131,4 @@ namespace CourseBack.Repository
             }
         }
     }
-    
 }

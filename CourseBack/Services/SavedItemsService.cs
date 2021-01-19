@@ -10,55 +10,90 @@ namespace CourseBack.Services
 {
     public class SavedItemsService : ISavedItemsService
     {
-        string conntectionString = "DefaultEndpointsProtocol=https;AccountName=neuralphotosblob;AccountKey=RefSuxn7AiKuRE4mkfeTWq1PY/P/" +
+        const string containerName = "usersphotos";
+        // Configuration
+        const string conntectionString = "DefaultEndpointsProtocol=https;AccountName=neuralphotosblob;AccountKey=RefSuxn7AiKuRE4mkfeTWq1PY/P/" +
            "b8UgOuZBzugzWpfwoy2TFLPWsPFyf+JyOO0NucJvcJK4aLXbnenmkh5GxQ==;EndpointSuffix=core.windows.net";
 
+        private static BlobServiceClient blobServiceClient = new BlobServiceClient(conntectionString);
+
         private IRecognizedItemsRepository _recognizedItemsRepository;
+
         public SavedItemsService(IRecognizedItemsRepository recognizedItemsRepository)
         {
             _recognizedItemsRepository = recognizedItemsRepository;
         }
 
-        public string AddItem(SavedItemRequest item)
+        public string AddItem(RecognizeItemRequest item)
         {
-           return  _recognizedItemsRepository.AddItem(item);
+            try
+            {
+                _recognizedItemsRepository.AddItem(item);
+                return null;
+            }
+            catch (Exception)
+            {
+                return "Database connection error";
+            }
         }
 
-        public IEnumerable<SavedItem> GetSavedItems()
+        public (string Error, IReadOnlyCollection<SavedItem> items) GetSavedItems()
         {
-            return _recognizedItemsRepository.GetSavedItems();
+            try
+            {
+                var items = _recognizedItemsRepository.GetSavedItems();
+
+                if (items.Count == 0)
+                {
+                    return ("No saved items", null);
+                }
+
+                return (null, items);
+            }
+            catch (Exception)
+            {
+                return ("Database connection error", null);
+            }
         }
 
-        // вынести а репозиторий
+        // один контейнер для всех
         public async Task<(string Error, string Url)> UploadToBlob(UserPhotoRequest userPhoto)
         {
             try
             {
-                BlobServiceClient blobServiceClient = new BlobServiceClient(conntectionString);
+                /*
                 string containerName = Guid.NewGuid().ToString();
-                BlobContainerClient containerClient = await blobServiceClient.CreateBlobContainerAsync(containerName);
+                */
+
+                BlobContainerClient containerClient = blobServiceClient.GetBlobContainerClient(containerName);
+                await containerClient.CreateIfNotExistsAsync();
+
                 containerClient.SetAccessPolicy(PublicAccessType.Blob);
                 BlobClient blobClient = containerClient.GetBlobClient(userPhoto.Photo.FileName);
-                await blobClient.UploadAsync(userPhoto.Photo.OpenReadStream(), new BlobHttpHeaders { ContentType = userPhoto.Photo.ContentType });
+                await blobClient.UploadAsync(userPhoto.Photo.OpenReadStream(), new BlobHttpHeaders { ContentType = "image/jpeg" });
 
                 return (null, blobClient.Uri.ToString());
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return (ex.Message, null);
+                return ("Blob connection error", null);
             }
         }
 
-        public async Task<IEnumerable<SavedItemRequest>> FindSimularGoods(string imageUrl, Guid userId)
+        public async Task<(string Error, IReadOnlyCollection<RecognizeItemRequest> items)> FindSimularGoods(string imageUrl, Guid userId)
         {
             try
             {
                 Parser parser = new Parser(imageUrl, userId);
-                return await parser.GetData();
+                return (null, await parser.GetData());
+            }
+            catch(NullReferenceException ex)
+            {
+                return (ex.Message, null);
             }
             catch(Exception ex)
             {
-                return null;
+                return (ex.Message, null);
             }
         }
     }

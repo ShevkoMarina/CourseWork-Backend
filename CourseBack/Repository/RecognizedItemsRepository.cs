@@ -10,50 +10,33 @@ namespace CourseBack.Repository
     public class RecognizedItemsRepository : IRecognizedItemsRepository
     {
         private readonly CourseWorkDBContext _context;
+
         public RecognizedItemsRepository(CourseWorkDBContext context)
         {
             _context = context;
         }
 
         // наверно стоит проверить есть ли уже она в базе
-        public string AddItem(SavedItemRequest item)
+        public void AddItem(RecognizeItemRequest item)
         {
-            try
-            {
-                _context.Items.Add(new SavedItem { 
-                    ImageUrl = item.ImageUrl, 
-                    Name = item.Name, 
-                    Price = item.Price, 
-                    UserId = item.UserId, 
-                    WebUrl = item.WebUrl });
+            _context.Items.Add(new SavedItem { 
+                ImageUrl = item.ImageUrl, 
+                Name = item.Name, 
+                Price = item.Price, 
+                UserId = item.UserId, 
+                WebUrl = item.WebUrl });
 
-                _context.SaveChanges();
-
-                return null;
-            }
-            catch (Exception ex)
-            {
-                return ex.Message;
-            }
+            _context.SaveChanges();
         }
 
-        // мб здесь ничего ловить не надо. надо бросать исключения специфизированные и обрабатывать в сервисе
-        public IEnumerable<SavedItem> GetSavedItems()
+        public IReadOnlyCollection<SavedItem> GetSavedItems()
         {
-            try
-            {
-                return _context.Items.ToList();
-            }
-            catch (Exception ex)
-            {
-                return null;
-            }
+             return _context.Items.ToList();
         }
 
-        public (string Error, string Url) UploadToBlob(UserPhotoRequest photo)
+        public string UploadToBlob(UserPhotoRequest photo)
         {
             throw new NotImplementedException();
         }
     }
-
 }

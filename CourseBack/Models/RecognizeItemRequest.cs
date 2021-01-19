@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CourseBack.Models
 {
-    public class SavedItemRequest
+    public class RecognizeItemRequest
     {
         public Guid UserId { get; set; }
         public string ImageUrl { get; set; }

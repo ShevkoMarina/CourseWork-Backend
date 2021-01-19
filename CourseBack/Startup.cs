@@ -36,6 +36,7 @@ namespace CourseBack
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "CourseWorkAPI", Version = "v1" });
             });
 
+
             services.AddScoped<IUsersService, UsersService>();
             services.AddScoped<ISavedItemsService, SavedItemsService>();
 

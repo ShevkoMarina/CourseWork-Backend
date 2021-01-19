@@ -9,9 +9,9 @@ namespace CourseBack.Services
     public interface ISavedItemsService
     {
         public Task<(string Error, string Url)> UploadToBlob(UserPhotoRequest photo);
-        public string AddItem(SavedItemRequest item);
-        public IEnumerable<SavedItem> GetSavedItems();
+        public string AddItem(RecognizeItemRequest item);
+        public (string Error, IReadOnlyCollection<SavedItem> items) GetSavedItems();
 
-        public Task<IEnumerable<SavedItemRequest>> FindSimularGoods(string imageUrl, Guid userId);
+        public Task<(string Error, IReadOnlyCollection<RecognizeItemRequest> items)> FindSimularGoods(string imageUrl, Guid userId);
     }
 }

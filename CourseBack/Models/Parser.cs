@@ -1,17 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using HtmlAgilityPack;
 using System.Threading.Tasks;
 using System.Net.Http;
+using System.Net.Mail;
 
 namespace CourseBack.Models
 {
-    // нормально ли что здесь есть логика? 
     public class Parser
     {
         private string imageUrl;
-        private const string baseUrl = "https://yandex.ru/images/search?rpt=imageview&url=";
+        private const string baseUrl = "https://yandex.ru/images/search?rpt=imageview&url="; 
         private HtmlDocument document;
         private Guid userId;
 
@@ -35,10 +34,9 @@ namespace CourseBack.Models
                 response.EnsureSuccessStatusCode();
                 return await response.Content.ReadAsStringAsync();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                Console.WriteLine(ex.Message);
-                return null;
+                throw new Exception("Parser request error");
             }
         }
 
@@ -50,34 +48,50 @@ namespace CourseBack.Models
             return document;
         }
 
-        //   переназвать моель
-        public async Task<List<SavedItemRequest>> GetData()
+
+        public async Task<IReadOnlyCollection<RecognizeItemRequest>> GetData()
         {
             document = await GetDocument();
-            List<SavedItemRequest> items = new List<SavedItemRequest>();
+            List<RecognizeItemRequest> items = new List<RecognizeItemRequest>();
 
-            var article = document?.DocumentNode?.SelectSingleNode(".//div[@class='CbirItem CbirMarketProducts CbirMarketProducts_carousel']");
-            var itemsPanel = article?.SelectSingleNode(".//div[@class='CbirMarketProducts-Items']");
-
-            foreach (HtmlNode itemNode in itemsPanel.SelectNodes(".//div[@class='CbirMarketProducts-Item']"))
+            try
             {
-                var imageBlock = itemNode.SelectSingleNode(".//div[@class='Thumb Thumb_type_block MarketProduct-Thumb']");
-                string imagePath = imageBlock.SelectSingleNode(".//div").Attributes["style"]?.Value;
-                imagePath = imagePath.Replace("height:110px;background-image:url(", "");
-                imagePath = "https:" + imagePath.Replace(")", "");
+                var article = document?.DocumentNode?.SelectSingleNode(".//div[@class='CbirItem CbirMarketProducts CbirMarketProducts_carousel']");
+                var itemsPanel = article?.SelectSingleNode(".//div[@class='CbirMarketProducts-Items']");
 
-                items.Add(new SavedItemRequest()
+                foreach (HtmlNode itemNode in itemsPanel.SelectNodes(".//div[@class='CbirMarketProducts-Item']"))
                 {
-                    UserId = userId,
-                    ImageUrl = imagePath,
-                    Price = itemNode.SelectSingleNode(".//span[@class='PriceValue']").InnerText, // знак вопроса?
-                    // прилепить доллар? 
-                    Name = itemNode.SelectSingleNode(".//div[@class='MarketProduct-Title']").InnerText,
-                    WebUrl = itemNode.SelectSingleNode(".//a[@class='Link MarketProduct-Link']").Attributes["href"]?.Value
-                });
-            }
+                    try
+                    {
+                        var imageBlock = itemNode.SelectSingleNode(".//div[@class='Thumb Thumb_type_block MarketProduct-Thumb']");
+                        string imagePath = imageBlock.SelectSingleNode(".//div").Attributes["style"]?.Value;
+                        imagePath = imagePath.Replace("height:110px;background-image:url(", "");
+                        imagePath = "https:" + imagePath.Replace(")", "");
+                        // эксешн если предмета нет в  продаже - и цены у него нет
 
-            return items;
+                        var item = new RecognizeItemRequest()
+                        {
+                            UserId = userId,
+                            ImageUrl = imagePath,
+                            Price = itemNode.SelectSingleNode(".//span[@class='PriceValue']")?.InnerText, // знаки вопроса                                                                                   
+                            Name = itemNode.SelectSingleNode(".//div[@class='MarketProduct-Title']")?.InnerText,
+                            WebUrl = itemNode.SelectSingleNode(".//a[@class='Link MarketProduct-Link']")?.Attributes["href"]?.Value
+                        };
+
+                        items.Add(item);
+                    }
+                    catch(Exception)
+                    {
+                        continue;
+                    }
+                }
+
+                return items;
+            }
+            catch (Exception)
+            {
+                throw new NullReferenceException(document.Text);
+            }
         }
     }
 }

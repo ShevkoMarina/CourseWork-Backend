@@ -7,7 +7,7 @@ namespace CourseBack.Models
 {
     public class RecognizeImageRequest
     {
-        public Guid UserId { get; set; }
+        public string UserId { get; set; }
         public string ImageUri { get; set; }
     }
 }
