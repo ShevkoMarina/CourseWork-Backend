@@ -35,9 +35,20 @@ namespace CourseBack.Repository
             _context.SaveChanges();
         }
 
+        public void DeleteAllItems()
+        {
+            _context.Items.RemoveRange(_context.Items);
+            _context.SaveChanges();
+        }
+
         public IReadOnlyCollection<SavedItem> GetSavedItems()
         {
              return _context.Items.ToList();
+        }
+
+        public IReadOnlyCollection<SavedItem> GetUserItems(Guid id)
+        {
+            return _context.Items.Where(item => item.UserId == id).ToList();
         }
     }
 }

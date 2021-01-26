@@ -25,9 +25,6 @@ namespace CourseBack.Controllers
             _savedItemsService = savedItemsService;
         }
 
-
-        // parse user id to guid
-
         [Route("[action]")]
         [HttpPost]
         public async Task<IActionResult> RecognizeItem([FromForm] UserPhotoRequest request)
@@ -45,7 +42,6 @@ namespace CourseBack.Controllers
                 {
                     return Ok(simularGoodsResult.items);
                 }
-                // return BadRequest(simularGoodsResult.Error);
 
                 var problemDetals = new ProblemDetails
                 {
@@ -59,7 +55,6 @@ namespace CourseBack.Controllers
                     StatusCode = 400
                 };
 
-                //return Ok(simularGoodsResult);
             }
             return BadRequest("BLOB DO BRRRR");
         }
@@ -132,6 +127,30 @@ namespace CourseBack.Controllers
                 ContentTypes = { "application/problem+json" },
                 StatusCode = 400
             };
+        }
+
+        [HttpDelete]
+        public IActionResult DeleteAllItems()
+        {
+            var result = _savedItemsService.DeleteAllItems();
+
+            if (String.IsNullOrEmpty(result))
+            {
+                return Ok();
+            }
+            return BadRequest(result);
+        }
+
+        [HttpGet("{id}")]
+        public IActionResult GetUsersItems(Guid id)
+        {
+            var result = _savedItemsService.GetUsersItems(id);
+
+            if (String.IsNullOrEmpty(result.Error))
+            {
+                return Ok(result.Items);
+            }
+            return BadRequest(result.Error);
         }
     }
 }

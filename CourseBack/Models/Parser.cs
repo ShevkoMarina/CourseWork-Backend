@@ -67,7 +67,6 @@ namespace CourseBack.Models
                         string imagePath = imageBlock?.SelectSingleNode(".//div")?.Attributes["style"]?.Value;
                         imagePath = imagePath?.Replace("height:110px;background-image:url(", "");
                         imagePath = "https:" + imagePath?.Replace(")", "");
-                        // эксешн если предмета нет в  продаже - и цены у него нет
 
                         var item = new SavedItem()
                         {
@@ -76,7 +75,8 @@ namespace CourseBack.Models
                             Price = itemNode.SelectSingleNode(".//span[@class='PriceValue']")?.InnerText ?? "", // знаки вопроса                                                                                   
                             Name = itemNode.SelectSingleNode(".//div[@class='CbirProduct-Title']")?.InnerText ?? "",
                             //WebUrl = itemNode.SelectSingleNode(".//a[@class='Link MarketProduct-Link']")?.Attributes["href"]?.Value
-                            WebUrl = itemNode.SelectSingleNode(".//span[@class='CbirProduct-ShopDomain']")?.InnerText ?? ""
+                            // WebUrl = itemNode.SelectSingleNode(".//span[@class='CbirProduct-ShopDomain']")?.InnerText ?? ""
+                            WebUrl = itemNode?.SelectSingleNode(".//a[@class='Link Link_theme_outer CbirProduct-ShopDomainLink']").Attributes["href"].Value ?? ""
                         };
 
                         items.Add(item);

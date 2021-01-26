@@ -18,6 +18,7 @@ namespace CourseBack.Services
 
         private static BlobServiceClient blobServiceClient = new BlobServiceClient(conntectionString);
 
+
         private IRecognizedItemsRepository _recognizedItemsRepository;
 
         public SavedItemsService(IRecognizedItemsRepository recognizedItemsRepository)
@@ -97,6 +98,32 @@ namespace CourseBack.Services
             catch(Exception ex)
             {
                 return (ex.Message, null);
+            }
+        }
+
+        public string DeleteAllItems()
+        {
+            try
+            {
+                _recognizedItemsRepository.DeleteAllItems();
+                return null;
+            }
+            catch(Exception ex)
+            {
+                return (ex.Message);
+            }
+        }
+
+        public (IEnumerable<SavedItem> Items, string Error) GetUsersItems(Guid id)
+        {
+            try
+            {
+                var items = _recognizedItemsRepository.GetUserItems(id);
+                return (items, null);
+            }
+            catch(Exception)
+            {
+                return (null, "Database connection error");
             }
         }
     }

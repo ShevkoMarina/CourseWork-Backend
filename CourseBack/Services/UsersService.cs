@@ -2,8 +2,6 @@
 using System;
 using System.Collections.Generic;
 using CourseBack.Repository;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace CourseBack.Services
 {
