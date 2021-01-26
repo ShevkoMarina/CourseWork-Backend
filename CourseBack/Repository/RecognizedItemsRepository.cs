@@ -16,6 +16,12 @@ namespace CourseBack.Repository
             _context = context;
         }
 
+        public void AddBatchItems(IEnumerable<SavedItem> items)
+        {
+            _context.Items.AddRange(items);
+            _context.SaveChanges();
+        }
+
         // наверно стоит проверить есть ли уже она в базе
         public void AddItem(RecognizeItemRequest item)
         {
@@ -32,11 +38,6 @@ namespace CourseBack.Repository
         public IReadOnlyCollection<SavedItem> GetSavedItems()
         {
              return _context.Items.ToList();
-        }
-
-        public string UploadToBlob(UserPhotoRequest photo)
-        {
-            throw new NotImplementedException();
         }
     }
 }

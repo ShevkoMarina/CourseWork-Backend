@@ -5,8 +5,9 @@ namespace CourseBack.Repository
 {
     public interface IRecognizedItemsRepository
     {
-        public string UploadToBlob(UserPhotoRequest photo);
         public void AddItem(RecognizeItemRequest item);
         public IReadOnlyCollection<SavedItem> GetSavedItems();
+
+        public void AddBatchItems(IEnumerable<SavedItem> items);
     }
 }

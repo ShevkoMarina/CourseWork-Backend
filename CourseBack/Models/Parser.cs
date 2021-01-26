@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using HtmlAgilityPack;
 using System.Threading.Tasks;
 using System.Net.Http;
-using System.Net.Mail;
 
 namespace CourseBack.Models
 {
@@ -49,10 +48,10 @@ namespace CourseBack.Models
         }
 
 
-        public async Task<IReadOnlyCollection<RecognizeItemRequest>> GetData()
+        public async Task<IReadOnlyCollection<SavedItem>> GetData()
         {
             document = await GetDocument();
-            List<RecognizeItemRequest> items = new List<RecognizeItemRequest>();
+            List<SavedItem> items = new List<SavedItem>();
 
             try
             {
@@ -63,19 +62,21 @@ namespace CourseBack.Models
                 {
                     try
                     {
-                        var imageBlock = itemNode.SelectSingleNode(".//div[@class='Thumb Thumb_type_block MarketProduct-Thumb']");
-                        string imagePath = imageBlock.SelectSingleNode(".//div").Attributes["style"]?.Value;
-                        imagePath = imagePath.Replace("height:110px;background-image:url(", "");
-                        imagePath = "https:" + imagePath.Replace(")", "");
+                        //var imageBlock = itemNode.SelectSingleNode(".//div[@class='Thumb Thumb_type_block MarketProduct-Thumb']");
+                        var imageBlock = itemNode.SelectSingleNode(".//div[@class='Thumb Thumb_type_block CbirProduct-Thumb']");
+                        string imagePath = imageBlock?.SelectSingleNode(".//div")?.Attributes["style"]?.Value;
+                        imagePath = imagePath?.Replace("height:110px;background-image:url(", "");
+                        imagePath = "https:" + imagePath?.Replace(")", "");
                         // эксешн если предмета нет в  продаже - и цены у него нет
 
-                        var item = new RecognizeItemRequest()
+                        var item = new SavedItem()
                         {
                             UserId = userId,
-                            ImageUrl = imagePath,
-                            Price = itemNode.SelectSingleNode(".//span[@class='PriceValue']")?.InnerText, // знаки вопроса                                                                                   
-                            Name = itemNode.SelectSingleNode(".//div[@class='MarketProduct-Title']")?.InnerText,
-                            WebUrl = itemNode.SelectSingleNode(".//a[@class='Link MarketProduct-Link']")?.Attributes["href"]?.Value
+                            ImageUrl = imagePath ?? "",
+                            Price = itemNode.SelectSingleNode(".//span[@class='PriceValue']")?.InnerText ?? "", // знаки вопроса                                                                                   
+                            Name = itemNode.SelectSingleNode(".//div[@class='CbirProduct-Title']")?.InnerText ?? "",
+                            //WebUrl = itemNode.SelectSingleNode(".//a[@class='Link MarketProduct-Link']")?.Attributes["href"]?.Value
+                            WebUrl = itemNode.SelectSingleNode(".//span[@class='CbirProduct-ShopDomain']")?.InnerText ?? ""
                         };
 
                         items.Add(item);

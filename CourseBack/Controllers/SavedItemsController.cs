@@ -43,8 +43,7 @@ namespace CourseBack.Controllers
                 var simularGoodsResult = await _savedItemsService.FindSimularGoods(uploadToBlobResult.Url, Guid.Parse(request.UserId));
                 if (simularGoodsResult.Error == null)
                 {
-                    //return Ok(simularGoodsResult.items);
-                    return Ok(simularGoodsResult.items.Count);
+                    return Ok(simularGoodsResult.items);
                 }
                 // return BadRequest(simularGoodsResult.Error);
 
@@ -93,7 +92,7 @@ namespace CourseBack.Controllers
 
             if (simularGoodsResult.Error == null)
             {
-                return Ok(simularGoodsResult.items.Count);
+                return Ok(simularGoodsResult.items);
             }
 
             var problemDetals = new ProblemDetails

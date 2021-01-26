@@ -24,7 +24,7 @@ namespace CourseBack.Models
 
         [Required]
         [Column("name")]
-        [MaxLength(50)]
+        [MaxLength(100)]
         public string Name { get; set; }
 
         [Required]

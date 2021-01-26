@@ -10,8 +10,8 @@ namespace CourseBack.Services
     {
         public Task<(string Error, string Url)> UploadToBlob(UserPhotoRequest photo);
         public string AddItem(RecognizeItemRequest item);
-        public (string Error, IReadOnlyCollection<SavedItem> items) GetSavedItems();
+        public (string Error, IEnumerable<SavedItem> items) GetSavedItems();
 
-        public Task<(string Error, IReadOnlyCollection<RecognizeItemRequest> items)> FindSimularGoods(string imageUrl, Guid userId);
+        public Task<(string Error, IEnumerable<SavedItem> items)> FindSimularGoods(string imageUrl, Guid userId);
     }
 }

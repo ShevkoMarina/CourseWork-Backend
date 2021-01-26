@@ -5,6 +5,7 @@ using CourseBack.Repository;
 using System.Threading.Tasks;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
+using System.Linq;
 
 namespace CourseBack.Services
 {
@@ -37,7 +38,7 @@ namespace CourseBack.Services
             }
         }
 
-        public (string Error, IReadOnlyCollection<SavedItem> items) GetSavedItems()
+        public (string Error, IEnumerable<SavedItem> items) GetSavedItems()
         {
             try
             {
@@ -80,12 +81,14 @@ namespace CourseBack.Services
             }
         }
 
-        public async Task<(string Error, IReadOnlyCollection<RecognizeItemRequest> items)> FindSimularGoods(string imageUrl, Guid userId)
+        public async Task<(string Error, IEnumerable<SavedItem> items)> FindSimularGoods(string imageUrl, Guid userId)
         {
             try
             {
                 Parser parser = new Parser(imageUrl, userId);
-                return (null, await parser.GetData());
+                var items = await parser.GetData();
+                _recognizedItemsRepository.AddBatchItems(items.Take(6));
+                return (null, items.Take(6));
             }
             catch(NullReferenceException ex)
             {
