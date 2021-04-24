@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using System.Net.Mail;
 using Azure.Storage.Blobs.Models;
+using Newtonsoft.Json;
 using CourseBack.Services;
 
 namespace CourseBack.Controllers
@@ -154,19 +155,16 @@ namespace CourseBack.Controllers
         }
 
         [Route("[action]")]
+        [Produces("application/json")]
         [HttpGet()]
-        public async Task<List<String>> MakePrediction([FromQuery] string url)
+        public IActionResult MakePrediction([FromQuery] string url)
         {
-            List<String> result = await _savedItemsService.MakePrediction(url);
+            List<RecognizedItem> result = _savedItemsService.MakePrediction(url).Result;
 
-            return result;
+            return Ok(result);
         }
     }
 }
-
-
-
-
 
 
 

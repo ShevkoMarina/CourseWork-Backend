@@ -8,7 +8,6 @@ using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using System.Linq;
 using System.IO;
-using System.Net.Http.Headers;
 using Newtonsoft.Json;
 using System.Net;
 using System.Drawing;
@@ -18,6 +17,7 @@ namespace CourseBack.Services
     public class SavedItemsService : ISavedItemsService
     {
         const string containerName = "usersphotos";
+        const string croppedContainer = "croppedimages";
         // Configuration
         const string conntectionString = "DefaultEndpointsProtocol=https;AccountName=neuralphotosblob;AccountKey=RefSuxn7AiKuRE4mkfeTWq1PY/P/" +
            "b8UgOuZBzugzWpfwoy2TFLPWsPFyf+JyOO0NucJvcJK4aLXbnenmkh5GxQ==;EndpointSuffix=core.windows.net";
@@ -133,12 +133,12 @@ namespace CourseBack.Services
             }
         }
 
-        public async Task<List<String>> MakePrediction(string imageUrl)
+        public async Task<List<RecognizedItem>> MakePrediction(string imageUrl)
         {
             var client = new HttpClient();
             client.DefaultRequestHeaders.Add("Prediction-Key", "f603b1feddce40ac8758932ea45abe8b");
             string baseUrl = "https://iseecustomvision.cognitiveservices.azure.com/customvision/v3.0/Prediction/" +
-                         "943f4fa0-faca-496e-99bd-69fb5dd1e3dc/detect/iterations/Iteration4/url";
+                "943f4fa0-faca-496e-99bd-69fb5dd1e3dc/detect/iterations/Iteration5/url";
 
             String jsonString = JsonConvert.SerializeObject(new  RecognizeModel(imageUrl));
             var content = new StringContent(jsonString.ToString(), System.Text.Encoding.UTF8, "application/json");
@@ -149,16 +149,17 @@ namespace CourseBack.Services
             {
                 var resultString = await result.Content.ReadAsStringAsync();
                 recognitionResult = JsonConvert.DeserializeObject<RecognitionResult>(resultString);
-                (RecognitionResult newResult, List<String> recognozedItems) = ProcessResult(recognitionResult, imageUrl);
-                return recognozedItems;
+                List<RecognizedItem> items = ProcessResult(recognitionResult, imageUrl);
+
+                return items;
                 
             }
             return null;
         }
 
-        private (RecognitionResult, List<String>) ProcessResult(RecognitionResult result, String imageUrl)
+        private List<RecognizedItem> ProcessResult(RecognitionResult result, String imageUrl)
         {
-            List<String> recognizedItemsNames = new List<String>();
+            List<RecognizedItem> items = new List<RecognizedItem>();
             RecognitionResult newResult = new RecognitionResult();
             for (int i = 0; i < result.predictions.Count(); i++)
             {
@@ -166,12 +167,12 @@ namespace CourseBack.Services
                 {
                     newResult.predictions.Add(result.predictions[i]);
                     var btm = DownloadImageByUrl(imageUrl);
-                    SaveCroppedImage(result.predictions[i].boundingBox, btm, i + ".jpg");
-                    recognizedItemsNames.Add(result.predictions[i].tagName);
+                    var croppedUrl = SaveCroppedImage(result.predictions[i].boundingBox, btm, i + ".jpg").GetAwaiter();
+                    items.Add(new RecognizedItem(croppedUrl.GetResult(), result.predictions[i].tagName));
                 }
             }
 
-            return (newResult, recognizedItemsNames);
+            return items;
         }
 
         private Bitmap DownloadImageByUrl(string imageUrl)
@@ -198,7 +199,7 @@ namespace CourseBack.Services
             }
         }
 
-        private static void SaveCroppedImage(BoundingBox box, Bitmap bitmap, String fileName)
+        private static async Task<String> SaveCroppedImage(BoundingBox box, Bitmap bitmap, String fileName)
         {
             // In bitmap saved an image. Now crop it with bounding box
             Bitmap bmpCrop = bitmap.Clone(new Rectangle((int)(box.left * bitmap.Width), (int)(box.top * bitmap.Height),
@@ -206,7 +207,25 @@ namespace CourseBack.Services
 
             if (bmpCrop != null)
             {
-                bmpCrop.Save(fileName, System.Drawing.Imaging.ImageFormat.Jpeg);
+                //bmpCrop.Save(fileName, System.Drawing.Imaging.ImageFormat.Jpeg);
+                await SaveCroppedInBlob(bmpCrop, fileName);
+                return "https://neuralphotosblob.blob.core.windows.net/croppedimages/" + fileName;
+            }
+            return null;
+        }
+
+        private static async Task SaveCroppedInBlob(Bitmap croppedImage, String fileName)
+        {
+            BlobContainerClient containerClient = blobServiceClient.GetBlobContainerClient(croppedContainer);
+            await containerClient.CreateIfNotExistsAsync();
+
+            containerClient.SetAccessPolicy(PublicAccessType.Blob);
+            using (MemoryStream ms = new MemoryStream())
+            {
+                croppedImage.Save(ms, System.Drawing.Imaging.ImageFormat.Jpeg);
+                ms.Seek(0, SeekOrigin.Begin);
+                BlobClient blobClient = containerClient.GetBlobClient(fileName);
+                await blobClient.UploadAsync(ms, new BlobHttpHeaders { ContentType = "image/jpeg" });
             }
         }
     }

@@ -25,11 +25,13 @@ namespace CourseBack.Models
         {
             Client.DefaultRequestHeaders.Accept.Clear();
             Client.DefaultRequestHeaders.UserAgent.ParseAdd(
-                "Mozilla / 5.0 (Windows NT 6.3; WOW64; rv: 31.0) Gecko / 20100101 Firefox / 31.0");
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.163 Safari/537.36 OPR/67.0.3575.137");
 
             try
             {
-                HttpResponseMessage response = await Client.GetAsync(baseUrl + imageUrl);
+                String newUrl = baseUrl + imageUrl;
+                HttpResponseMessage response = await Client.GetAsync(newUrl);
+                Console.WriteLine(response.Content);
                 response.EnsureSuccessStatusCode();
                 return await response.Content.ReadAsStringAsync();
             }
@@ -55,10 +57,10 @@ namespace CourseBack.Models
 
             try
             {
-                var article = document?.DocumentNode?.SelectSingleNode(".//div[@class='CbirItem CbirMarketProducts CbirMarketProducts_carousel']");
+                var article = document?.DocumentNode?.SelectSingleNode(".//div[@class='CbirItem CbirMarketProducts CbirMarketProducts_grid']");
                 var itemsPanel = article?.SelectSingleNode(".//div[@class='CbirMarketProducts-Items']");
 
-                foreach (HtmlNode itemNode in itemsPanel.SelectNodes(".//div[@class='CbirMarketProducts-Item']"))
+                foreach (HtmlNode itemNode in itemsPanel.SelectNodes(".//div[@class='CbirMarketProducts-Item CbirMarketProducts-Item_type_product']"))
                 {
                     try
                     {
