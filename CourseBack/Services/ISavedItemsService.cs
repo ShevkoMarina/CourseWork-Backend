@@ -18,5 +18,7 @@ namespace CourseBack.Services
         public string DeleteAllItems();
 
         public (IEnumerable<SavedItem> Items, string Error) GetUsersItems(Guid id);
+
+        public Task<List<String>> MakePrediction(string imageFilePath);
     }
 }

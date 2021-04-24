@@ -152,6 +152,15 @@ namespace CourseBack.Controllers
             }
             return BadRequest(result.Error);
         }
+
+        [Route("[action]")]
+        [HttpGet()]
+        public async Task<List<String>> MakePrediction([FromQuery] string url)
+        {
+            List<String> result = await _savedItemsService.MakePrediction(url);
+
+            return result;
+        }
     }
 }
 

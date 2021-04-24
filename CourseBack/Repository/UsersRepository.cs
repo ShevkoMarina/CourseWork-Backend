@@ -8,8 +8,7 @@ namespace CourseBack.Repository
     
     public class UsersRepository : IUsersRepository
     {
-        
-
+      
         private readonly CourseWorkDBContext _context;
 
         public UsersRepository(CourseWorkDBContext context)

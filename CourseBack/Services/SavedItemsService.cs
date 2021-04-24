@@ -1,11 +1,17 @@
 ﻿using CourseBack.Models;
 using System;
+using System.Net.Http;
 using System.Collections.Generic;
 using CourseBack.Repository;
 using System.Threading.Tasks;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using System.Linq;
+using System.IO;
+using System.Net.Http.Headers;
+using Newtonsoft.Json;
+using System.Net;
+using System.Drawing;
 
 namespace CourseBack.Services
 {
@@ -124,6 +130,83 @@ namespace CourseBack.Services
             catch(Exception)
             {
                 return (null, "Database connection error");
+            }
+        }
+
+        public async Task<List<String>> MakePrediction(string imageUrl)
+        {
+            var client = new HttpClient();
+            client.DefaultRequestHeaders.Add("Prediction-Key", "f603b1feddce40ac8758932ea45abe8b");
+            string baseUrl = "https://iseecustomvision.cognitiveservices.azure.com/customvision/v3.0/Prediction/" +
+                         "943f4fa0-faca-496e-99bd-69fb5dd1e3dc/detect/iterations/Iteration4/url";
+
+            String jsonString = JsonConvert.SerializeObject(new  RecognizeModel(imageUrl));
+            var content = new StringContent(jsonString.ToString(), System.Text.Encoding.UTF8, "application/json");
+            var result = client.PostAsync(baseUrl, content).Result;
+
+            RecognitionResult recognitionResult = null;
+            if (result.IsSuccessStatusCode)
+            {
+                var resultString = await result.Content.ReadAsStringAsync();
+                recognitionResult = JsonConvert.DeserializeObject<RecognitionResult>(resultString);
+                (RecognitionResult newResult, List<String> recognozedItems) = ProcessResult(recognitionResult, imageUrl);
+                return recognozedItems;
+                
+            }
+            return null;
+        }
+
+        private (RecognitionResult, List<String>) ProcessResult(RecognitionResult result, String imageUrl)
+        {
+            List<String> recognizedItemsNames = new List<String>();
+            RecognitionResult newResult = new RecognitionResult();
+            for (int i = 0; i < result.predictions.Count(); i++)
+            {
+                if (result.predictions[i].probability > 0.5)
+                {
+                    newResult.predictions.Add(result.predictions[i]);
+                    var btm = DownloadImageByUrl(imageUrl);
+                    SaveCroppedImage(result.predictions[i].boundingBox, btm, i + ".jpg");
+                    recognizedItemsNames.Add(result.predictions[i].tagName);
+                }
+            }
+
+            return (newResult, recognizedItemsNames);
+        }
+
+        private Bitmap DownloadImageByUrl(string imageUrl)
+        {
+            try
+            {
+                var client = new WebClient();
+                Stream stream = client.OpenRead(imageUrl);
+                Bitmap bitmap = new Bitmap(stream);
+
+                if (bitmap != null)
+                {
+                    bitmap.Save("currentImage.jpeg", System.Drawing.Imaging.ImageFormat.Jpeg);
+                }
+                stream.Flush();
+                stream.Close();
+                client.Dispose();
+
+                return bitmap;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+
+        private static void SaveCroppedImage(BoundingBox box, Bitmap bitmap, String fileName)
+        {
+            // In bitmap saved an image. Now crop it with bounding box
+            Bitmap bmpCrop = bitmap.Clone(new Rectangle((int)(box.left * bitmap.Width), (int)(box.top * bitmap.Height),
+                (int)(box.width * bitmap.Width), (int)(box.height * bitmap.Height)), bitmap.PixelFormat);
+
+            if (bmpCrop != null)
+            {
+                bmpCrop.Save(fileName, System.Drawing.Imaging.ImageFormat.Jpeg);
             }
         }
     }
