@@ -79,6 +79,22 @@ namespace CourseBack.Controllers
             return BadRequest(resultError);
         }
 
+        [Route("[action]")]
+        [HttpPost]
+        public async Task<IActionResult> FindSimilarByUrl([FromBody] FindSimilarRequest request)
+        {
+            List<SavedItem> similarItems = new List<SavedItem>();
+            foreach (var photo in request.items)
+            {
+                var similarGoodsResult = await _savedItemsService.FindSimularGoods(photo.ImageUri, Guid.Parse(photo.UserId));
+
+                if (similarGoodsResult.items != null)
+                {
+                    similarItems.AddRange(similarGoodsResult.items);
+                }
+            }
+            return Ok(similarItems);
+        }
 
         [Route("[action]")]
         [HttpPost]
@@ -130,6 +146,19 @@ namespace CourseBack.Controllers
             };
         }
 
+        [Route("[action]")]
+        [Produces("application/json")]
+        [HttpPost]
+        public IActionResult SaveItems([FromBody] List<SavedItem> request)
+        {
+            var result = _savedItemsService.SaveItems(request);
+            if (result == null)
+            {
+                return Ok();
+            }
+            return BadRequest();
+        }
+
         [HttpDelete]
         public IActionResult DeleteAllItems()
         {
@@ -159,7 +188,8 @@ namespace CourseBack.Controllers
         [HttpGet()]
         public IActionResult MakePrediction([FromQuery] string url)
         {
-            List<RecognizedItem> result = _savedItemsService.MakePrediction(url).Result;
+
+            List<RecognizedItem> result = _savedItemsService.MakePrediction(url);
 
             return Ok(result);
         }

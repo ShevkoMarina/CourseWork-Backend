@@ -21,6 +21,7 @@ namespace CourseBack.Services
         // Configuration
         const string conntectionString = "DefaultEndpointsProtocol=https;AccountName=neuralphotosblob;AccountKey=RefSuxn7AiKuRE4mkfeTWq1PY/P/" +
            "b8UgOuZBzugzWpfwoy2TFLPWsPFyf+JyOO0NucJvcJK4aLXbnenmkh5GxQ==;EndpointSuffix=core.windows.net";
+        const string currentImagePath = "currentImage.jpeg";
 
         private static BlobServiceClient blobServiceClient = new BlobServiceClient(conntectionString);
 
@@ -88,13 +89,30 @@ namespace CourseBack.Services
             }
         }
 
+        public string SaveItems(List<SavedItem> items)
+        {
+            try
+            {
+                _recognizedItemsRepository.AddBatchItems(items);
+                return null;
+            }
+            catch (Exception ex)
+            {
+                return ex.Message;
+            } 
+        }
+
         public async Task<(string Error, IEnumerable<SavedItem> items)> FindSimularGoods(string imageUrl, Guid userId)
         {
             try
             {
                 Parser parser = new Parser(imageUrl, userId);
                 var items = await parser.GetData();
-                _recognizedItemsRepository.AddBatchItems(items.Take(6));
+                if (items == null)
+                {
+                    return ("Parsing error", null);
+                }
+               // _recognizedItemsRepository.AddBatchItems(items.Take(6));
                 return (null, items.Take(6));
             }
             catch(NullReferenceException ex)
@@ -133,6 +151,114 @@ namespace CourseBack.Services
             }
         }
 
+        public List<RecognizedItem> MakePrediction(string imageUrl)
+        {
+            try
+            {
+                (Bitmap originalBitmap, String filepath) = DownloadImageByUrl(imageUrl);
+                if (originalBitmap != null)
+                {
+                    var results = YoloNetwork.MakeYoloPrediction(imageUrl);
+                    var items = ProcessResults(results, originalBitmap);
+
+                    return items;
+                }
+                var item = new List<RecognizedItem>();
+                item.Add(new RecognizedItem(filepath, ""));
+                return item;
+            }
+            catch (Exception ex)
+            {
+                var item = new List<RecognizedItem>();
+                item.Add(new RecognizedItem(ex.Message, ""));
+                return item;
+            }
+        }
+
+        private (Bitmap, String) DownloadImageByUrl(string imageUrl)
+        {
+            try
+            {
+                using (var client = new WebClient())
+                {
+                    using (Stream stream = client.OpenRead(imageUrl))
+                    {
+                        Bitmap bitmap = new Bitmap(stream);
+
+                        if (bitmap != null)
+                        {
+                             bitmap.Save(currentImagePath, System.Drawing.Imaging.ImageFormat.Jpeg);
+                             return (bitmap, currentImagePath);
+                        }
+                    }
+                }
+                return (null, null);
+            }
+            catch (Exception ex)
+            {
+                return (null, "error saving");
+            }
+
+        }
+
+        private List<RecognizedItem> ProcessResults(IReadOnlyList<YoloV4Result> results, Bitmap originalBitmap)
+        {
+            List<RecognizedItem> items = new List<RecognizedItem>();
+
+            for (int i = 0; i < results.Count; i++)
+            {
+                if (results[i].Confidence > 0.2)
+                {     
+                    // Save cropped bitmap in temp
+                    var croppedBmpUrl = SaveCroppedImage(results[i].BBox, originalBitmap, Guid.NewGuid().ToString() + ".jpg").GetAwaiter().GetResult();
+
+                    // Add in output list
+                    if (croppedBmpUrl != null)
+                    {
+                        items.Add(new RecognizedItem(croppedBmpUrl, results[i].Label));
+                    }
+                }
+            }
+
+            return items;
+        }
+
+        private static async Task<String> SaveCroppedImage(float[] BBox, Bitmap originalBitmap, String fileName)
+        {
+            // In bitmap saved an image. Now crop it with bounding box
+            var x1 = BBox[0];
+            var y1 = BBox[1];
+            var x2 = BBox[2];
+            var y2 = BBox[3];
+
+            Bitmap bmpCrop = originalBitmap.Clone(new Rectangle((int)x1, (int)y1, (int)(x2 - x1), (int)(y2 - y1)), originalBitmap.PixelFormat);
+
+            if (bmpCrop != null)
+            {
+                //bmpCrop.Save(fileName, System.Drawing.Imaging.ImageFormat.Jpeg);
+                await SaveCroppedInBlob(bmpCrop, fileName);
+                return "https://neuralphotosblob.blob.core.windows.net/croppedimages/" + fileName;
+            }
+            return null;
+        }
+
+        private static async Task SaveCroppedInBlob(Bitmap croppedImage, String fileName)
+        {
+            BlobContainerClient containerClient = blobServiceClient.GetBlobContainerClient(croppedContainer);
+            await containerClient.CreateIfNotExistsAsync();
+
+            containerClient.SetAccessPolicy(PublicAccessType.Blob);
+            using (MemoryStream ms = new MemoryStream())
+            {
+                croppedImage.Save(ms, System.Drawing.Imaging.ImageFormat.Jpeg);
+                ms.Seek(0, SeekOrigin.Begin);
+                BlobClient blobClient = containerClient.GetBlobClient(fileName);
+                await blobClient.UploadAsync(ms, new BlobHttpHeaders { ContentType = "image/jpeg" });
+            }
+        }
+
+
+        /*
         public async Task<List<RecognizedItem>> MakePrediction(string imageUrl)
         {
             var client = new HttpClient();
@@ -228,5 +354,6 @@ namespace CourseBack.Services
                 await blobClient.UploadAsync(ms, new BlobHttpHeaders { ContentType = "image/jpeg" });
             }
         }
+        */
     }
 }

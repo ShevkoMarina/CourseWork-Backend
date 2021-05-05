@@ -19,6 +19,8 @@ namespace CourseBack.Services
 
         public (IEnumerable<SavedItem> Items, string Error) GetUsersItems(Guid id);
 
-        public Task<List<RecognizedItem>> MakePrediction(string imageFilePath);
+        public List<RecognizedItem> MakePrediction(string imageFilePath);
+
+        public string SaveItems(List<SavedItem> items);
     }
 }

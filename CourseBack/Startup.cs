@@ -32,12 +32,6 @@ namespace CourseBack
             services.AddControllers();
             services.AddMvc(options => options.EnableEndpointRouting = false);
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
-            /*
-            services.AddMvc().AddJsonOptions(options =>
-            {
-                options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
-            });
-            */
 
             services.AddSwaggerGen(c =>
             {

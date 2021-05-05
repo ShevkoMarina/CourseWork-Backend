@@ -58,6 +58,10 @@ namespace CourseBack.Models
             try
             {
                 var article = document?.DocumentNode?.SelectSingleNode(".//div[@class='CbirItem CbirMarketProducts CbirMarketProducts_grid']");
+                if (article == null)
+                {
+                    return null;
+                }
                 var itemsPanel = article?.SelectSingleNode(".//div[@class='CbirMarketProducts-Items']");
 
                 foreach (HtmlNode itemNode in itemsPanel.SelectNodes(".//div[@class='CbirMarketProducts-Item CbirMarketProducts-Item_type_product']"))
