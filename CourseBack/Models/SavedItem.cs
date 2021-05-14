@@ -22,6 +22,11 @@ namespace CourseBack.Models
         [Column("image_url", TypeName = "text")]
         public string ImageUrl { get; set; }
 
+       
+        [Column("category")]
+        [MaxLength(200)]
+        public string Category { get; set; }
+
         [Required]
         [Column("name")]
         [MaxLength(100)]

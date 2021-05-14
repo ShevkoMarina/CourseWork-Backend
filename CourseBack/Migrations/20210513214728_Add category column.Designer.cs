@@ -4,14 +4,16 @@ using CourseBack;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace CourseBack.Migrations
 {
     [DbContext(typeof(CourseWorkDBContext))]
-    partial class CourseWorkDBContextModelSnapshot : ModelSnapshot
+    [Migration("20210513214728_Add category column")]
+    partial class Addcategorycolumn
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

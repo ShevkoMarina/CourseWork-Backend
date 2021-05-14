@@ -12,13 +12,15 @@ namespace CourseBack.Models
         private const string baseUrl = "https://yandex.ru/images/search?rpt=imageview&url="; 
         private HtmlDocument document;
         private Guid userId;
+        private string category;
 
         public static HttpClient Client { get; set; } = new HttpClient();
 
-        public Parser(string imageUrl, Guid userId)
+        public Parser(string imageUrl, Guid userId, string category)
         {
             this.imageUrl = imageUrl;
             this.userId = userId;
+            this.category = category;
         }
 
         private async Task<string> GetSource(string imageUrl)
@@ -68,7 +70,7 @@ namespace CourseBack.Models
                 {
                     try
                     {
-                        //var imageBlock = itemNode.SelectSingleNode(".//div[@class='Thumb Thumb_type_block MarketProduct-Thumb']");
+                      
                         var imageBlock = itemNode.SelectSingleNode(".//div[@class='Thumb Thumb_type_block CbirProduct-Thumb']");
                         string imagePath = imageBlock?.SelectSingleNode(".//div")?.Attributes["style"]?.Value;
                         imagePath = imagePath?.Replace("height:110px;background-image:url(", "");
@@ -76,13 +78,13 @@ namespace CourseBack.Models
 
                         var item = new SavedItem()
                         {
+                            Id = Guid.NewGuid(),
                             UserId = userId,
                             ImageUrl = imagePath ?? "",
                             Price = itemNode.SelectSingleNode(".//span[@class='PriceValue']")?.InnerText ?? "", // знаки вопроса                                                                                   
                             Name = itemNode.SelectSingleNode(".//div[@class='CbirProduct-Title']")?.InnerText ?? "",
-                            //WebUrl = itemNode.SelectSingleNode(".//a[@class='Link MarketProduct-Link']")?.Attributes["href"]?.Value
-                            // WebUrl = itemNode.SelectSingleNode(".//span[@class='CbirProduct-ShopDomain']")?.InnerText ?? ""
-                            WebUrl = itemNode?.SelectSingleNode(".//a[@class='Link Link_theme_outer CbirProduct-ShopDomainLink']").Attributes["href"].Value ?? ""
+                            WebUrl = itemNode?.SelectSingleNode(".//a[@class='Link Link_theme_outer CbirProduct-ShopDomainLink']").Attributes["href"].Value ?? "",
+                            Category = category
                         };
 
                         items.Add(item);

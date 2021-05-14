@@ -26,6 +26,7 @@ namespace CourseBack.Controllers
             _savedItemsService = savedItemsService;
         }
 
+        /*
         [Route("[action]")]
         [HttpPost]
         public async Task<IActionResult> RecognizeItem([FromForm] UserPhotoRequest request)
@@ -38,7 +39,7 @@ namespace CourseBack.Controllers
             var uploadToBlobResult = await _savedItemsService.UploadToBlob(request);
             if (uploadToBlobResult.Error == null)
             {
-                var simularGoodsResult = await _savedItemsService.FindSimularGoods(uploadToBlobResult.Url, Guid.Parse(request.UserId));
+                var simularGoodsResult = await _savedItemsService.FindSimularGoods(uploadToBlobResult.Url, Guid.Parse(request.UserId), );
                 if (simularGoodsResult.Error == null)
                 {
                     return Ok(simularGoodsResult.items);
@@ -59,6 +60,7 @@ namespace CourseBack.Controllers
             }
             return BadRequest("BLOB DO BRRRR");
         }
+        */
 
         [HttpGet]
         public async Task<IActionResult> GetSavedItems()
@@ -84,9 +86,9 @@ namespace CourseBack.Controllers
         public async Task<IActionResult> FindSimilarByUrl([FromBody] FindSimilarRequest request)
         {
             List<SavedItem> similarItems = new List<SavedItem>();
-            foreach (var photo in request.items)
+            foreach (var item in request.items)
             {
-                var similarGoodsResult = await _savedItemsService.FindSimularGoods(photo.ImageUri, Guid.Parse(photo.UserId));
+                var similarGoodsResult = await _savedItemsService.FindSimularGoods(item.ImageUri, Guid.Parse(request.UserId), item.Category);
 
                 if (similarGoodsResult.items != null)
                 {
@@ -96,6 +98,7 @@ namespace CourseBack.Controllers
             return Ok(similarItems);
         }
 
+        /*
         [Route("[action]")]
         [HttpPost]
         public async Task<IActionResult> FindByUrl([FromBody] RecognizeImageRequest photo)
@@ -120,7 +123,7 @@ namespace CourseBack.Controllers
             };
         }
 
-
+        */
         [Route("[action]")]
         [Produces("application/json")]
         [HttpPost]
@@ -188,9 +191,26 @@ namespace CourseBack.Controllers
         [HttpGet()]
         public IActionResult MakePrediction([FromQuery] string url)
         {
-
             List<RecognizedItem> result = _savedItemsService.MakePrediction(url);
 
+            return Ok(result);
+        }
+
+        [Route("[action]")]
+        [Produces("application/json")]
+        [HttpGet()]
+        public IActionResult GetUserCategories([FromQuery] Guid guid)
+        {
+            List<CategoryItem> categories = _savedItemsService.GetUserCategories(guid);
+            return Ok(categories);
+        }
+
+        [Route("[action]")]
+        [Produces("application/json")]
+        [HttpGet()]
+        public IActionResult GetUserItemsByCategory([FromQuery] Guid userId, String category)
+        {
+            var result = _savedItemsService.GetUserItemsByCategory(userId, category);
             return Ok(result);
         }
     }

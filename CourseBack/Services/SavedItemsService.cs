@@ -46,11 +46,11 @@ namespace CourseBack.Services
             }
         }
 
-        public (string Error, IEnumerable<SavedItem> items) GetSavedItems()
+        public (string Error, IEnumerable<SavedItem> items) GetSavedItems(Guid userId)
         {
             try
             {
-                var items = _recognizedItemsRepository.GetSavedItems();
+                var items = _recognizedItemsRepository.GetSavedItems(userId);
 
                 if (items.Count == 0)
                 {
@@ -70,10 +70,6 @@ namespace CourseBack.Services
         {
             try
             {
-                /*
-                string containerName = Guid.NewGuid().ToString();
-                */
-
                 BlobContainerClient containerClient = blobServiceClient.GetBlobContainerClient(containerName);
                 await containerClient.CreateIfNotExistsAsync();
 
@@ -94,6 +90,7 @@ namespace CourseBack.Services
             try
             {
                 _recognizedItemsRepository.AddBatchItems(items);
+
                 return null;
             }
             catch (Exception ex)
@@ -102,17 +99,17 @@ namespace CourseBack.Services
             } 
         }
 
-        public async Task<(string Error, IEnumerable<SavedItem> items)> FindSimularGoods(string imageUrl, Guid userId)
+        public async Task<(string Error, IEnumerable<SavedItem> items)> FindSimularGoods(string imageUrl, Guid userId, string category)
         {
             try
             {
-                Parser parser = new Parser(imageUrl, userId);
+                Parser parser = new Parser(imageUrl, userId, category);
                 var items = await parser.GetData();
                 if (items == null)
                 {
                     return ("Parsing error", null);
                 }
-               // _recognizedItemsRepository.AddBatchItems(items.Take(6));
+
                 return (null, items.Take(6));
             }
             catch(NullReferenceException ex)
@@ -254,6 +251,82 @@ namespace CourseBack.Services
                 ms.Seek(0, SeekOrigin.Begin);
                 BlobClient blobClient = containerClient.GetBlobClient(fileName);
                 await blobClient.UploadAsync(ms, new BlobHttpHeaders { ContentType = "image/jpeg" });
+            }
+        }
+
+        public List<CategoryItem> GetUserCategories(Guid userId)
+        {
+            try
+            {
+                var items = _recognizedItemsRepository.GetSavedItems(userId);
+
+                var categories = items.Select(x => x.Category).Distinct().ToList();
+
+                String categoryUrl = "";
+                List<CategoryItem> categoryItems = new List<CategoryItem>();
+
+                // "Кровать", "Тумбочка", "Стеллаж", "Стул", "Диван", "Табурет", "Стол", "Шкаф"
+                
+
+                for (int i = 0; i < categories.Count(); i++)
+                {
+                    switch (categories[i])
+                    {
+                        case "Кровать":
+                            categoryUrl = "https://neuralphotosblob.blob.core.windows.net/icons/icons8-bed-64.png";
+                            break;
+                        case "Тумбочка":
+                            categoryUrl = "https://neuralphotosblob.blob.core.windows.net/icons/icons8-console-table-64.png";
+                            break;
+                        case "Стеллаж":
+                            categoryUrl = "https://neuralphotosblob.blob.core.windows.net/icons/icons8-rack-64.png";
+                            break;
+                        case "Стул":
+                            categoryUrl = "https://neuralphotosblob.blob.core.windows.net/icons/chair_icon.png";
+                            break;
+                        case "Диван":
+                            categoryUrl = "https://neuralphotosblob.blob.core.windows.net/icons/icons8-armchair-64.png";
+                            break;
+                        case "Табурет":
+                            categoryUrl = "https://neuralphotosblob.blob.core.windows.net/icons/icons8-bar-stool-64.png";
+                            break;
+                        case "Стол":
+                            categoryUrl = "https://neuralphotosblob.blob.core.windows.net/icons/icons8-coffee-table-64.png";
+                            break;
+                        case "Шкаф":
+                            categoryUrl = "https://neuralphotosblob.blob.core.windows.net/icons/icons8-closet-64.png";
+                            break;
+                    }
+
+                    categoryItems.Add(new CategoryItem(categoryUrl, categories[i]));
+                }
+                return categoryItems;
+
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
+        public IEnumerable<SavedItem> GetUserItemsByCategory(Guid userId, string category)
+        {
+            try
+            {
+                var items = _recognizedItemsRepository.GetSavedItems(userId);
+
+                if (items.Count == 0)
+                {
+                    return null;
+                }
+
+                var filteredItems = items.Where(i => i.Category == category);
+                return filteredItems;
+              
+            }
+            catch (Exception)
+            {
+                return null;
             }
         }
 

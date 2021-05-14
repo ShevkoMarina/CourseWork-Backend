@@ -11,9 +11,9 @@ namespace CourseBack.Services
     {
         public Task<(string Error, string Url)> UploadToBlob(UserPhotoRequest photo);
         public string AddItem(RecognizeItemRequest item);
-        public (string Error, IEnumerable<SavedItem> items) GetSavedItems();
+        public (string Error, IEnumerable<SavedItem> items) GetSavedItems(Guid userId);
 
-        public Task<(string Error, IEnumerable<SavedItem> items)> FindSimularGoods(string imageUrl, Guid userId);
+        public Task<(string Error, IEnumerable<SavedItem> items)> FindSimularGoods(string imageUrl, Guid userId, string category);
 
         public string DeleteAllItems();
 
@@ -22,5 +22,9 @@ namespace CourseBack.Services
         public List<RecognizedItem> MakePrediction(string imageFilePath);
 
         public string SaveItems(List<SavedItem> items);
+
+        public List<CategoryItem> GetUserCategories(Guid userId);
+
+        public IEnumerable<SavedItem> GetUserItemsByCategory(Guid userId, String category);
     }
 }
