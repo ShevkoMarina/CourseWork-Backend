@@ -11,12 +11,10 @@ namespace CourseBack.Services
 {
     public class YoloNetwork
     {
-      
-        const string imageFolder = @"./Assets/Images";
 
         static readonly string[] classesNames = new string[] { "Кровать", "Тумбочка", "Стеллаж", "Стул", "Диван", "Табурет", "Стол", "Шкаф" };
 
-        public static IReadOnlyList<YoloV4Result> MakeYoloPrediction(string imageUrl)
+        public static IReadOnlyList<YoloRecognitionResult> MakeYoloPrediction(string imageUrl)
         {
             /*
             using (var client = new WebClient())
@@ -50,14 +48,14 @@ namespace CourseBack.Services
                        },
                        modelFile: "model_best.onnx"));
 
-                var model = pipeline.Fit(mlContext.Data.LoadFromEnumerable(new List<YoloV4BitmapData>()));
+                var model = pipeline.Fit(mlContext.Data.LoadFromEnumerable(new List<YoloImageData>()));
 
-                var predictionEngine = mlContext.Model.CreatePredictionEngine<YoloV4BitmapData, YoloV4Prediction>(model);
+                var predictionEngine = mlContext.Model.CreatePredictionEngine<YoloImageData, YoloProcessor>(model);
 
                 Bitmap bitmap = DownloadImageByUrl(imageUrl);
                 // predict
-                var predict = predictionEngine.Predict(new YoloV4BitmapData() { Image = bitmap });
-                var results = predict.GetResults(classesNames, 0.3f, 0.7f);
+                var predict = predictionEngine.Predict(new YoloImageData() { Image = bitmap });
+                var results = predict.ProcessResults(classesNames, 0.3f, 0.7f);
 
                 return results;
         }

@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace CourseBack.Models
 {
-    public class YoloV4Result
+    public class YoloRecognitionResult
     {
         /// <summary>
         /// x1, y1, x2, y2 in page coordinates.
@@ -23,7 +23,7 @@ namespace CourseBack.Models
         /// </summary>
         public float Confidence { get; }
 
-        public YoloV4Result(float[] bbox, string label, float confidence)
+        public YoloRecognitionResult(float[] bbox, string label, float confidence)
         {
             BBox = bbox;
             Label = label;

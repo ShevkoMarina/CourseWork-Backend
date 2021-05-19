@@ -11,6 +11,8 @@ using System.Net.Mail;
 using Azure.Storage.Blobs.Models;
 using Newtonsoft.Json;
 using CourseBack.Services;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace CourseBack.Controllers
 {
@@ -26,63 +28,9 @@ namespace CourseBack.Controllers
             _savedItemsService = savedItemsService;
         }
 
-        /*
         [Route("[action]")]
         [HttpPost]
-        public async Task<IActionResult> RecognizeItem([FromForm] UserPhotoRequest request)
-        {
-            if (!Guid.TryParse(request.UserId, out _))
-            {
-                return BadRequest("Incorrect user id");
-            }
-
-            var uploadToBlobResult = await _savedItemsService.UploadToBlob(request);
-            if (uploadToBlobResult.Error == null)
-            {
-                var simularGoodsResult = await _savedItemsService.FindSimularGoods(uploadToBlobResult.Url, Guid.Parse(request.UserId), );
-                if (simularGoodsResult.Error == null)
-                {
-                    return Ok(simularGoodsResult.items);
-                }
-
-                var problemDetals = new ProblemDetails
-                {
-                    Status = 400,
-                    Title = simularGoodsResult.Error
-                };
-
-                return new ObjectResult(problemDetals)
-                {
-                    ContentTypes = { "application/problem+json" },
-                    StatusCode = 400
-                };
-
-            }
-            return BadRequest("BLOB DO BRRRR");
-        }
-        */
-
-        [HttpGet]
-        public async Task<IActionResult> GetSavedItems()
-        {
-            return Ok();
-        }
-
-
-        [Route("[action]")]
-        [HttpPost]
-        public IActionResult AddItem([FromBody] RecognizeItemRequest item)
-        {
-            var resultError = _savedItemsService.AddItem(item);
-            if (resultError == null)
-            {
-                return Ok();
-            }
-            return BadRequest(resultError);
-        }
-
-        [Route("[action]")]
-        [HttpPost]
+      [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> FindSimilarByUrl([FromBody] FindSimilarRequest request)
         {
             List<SavedItem> similarItems = new List<SavedItem>();
@@ -98,35 +46,10 @@ namespace CourseBack.Controllers
             return Ok(similarItems);
         }
 
-        /*
-        [Route("[action]")]
-        [HttpPost]
-        public async Task<IActionResult> FindByUrl([FromBody] RecognizeImageRequest photo)
-        {
-            var simularGoodsResult = await _savedItemsService.FindSimularGoods(photo.ImageUri, Guid.Parse(photo.UserId));
-
-            if (simularGoodsResult.Error == null)
-            {
-                return Ok(simularGoodsResult.items);
-            }
-
-            var problemDetals = new ProblemDetails
-            {
-                Status = 400,
-                Title = simularGoodsResult.Error
-            };
-
-            return new ObjectResult(problemDetals)
-            {
-                ContentTypes = { "application/problem+json" },
-                StatusCode = 400
-            };
-        }
-
-        */
         [Route("[action]")]
         [Produces("application/json")]
         [HttpPost]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> UploadToBlob([FromForm] UserPhotoRequest request)
         {
             var uploadToBlobResult = await _savedItemsService.UploadToBlob(request);
@@ -152,6 +75,7 @@ namespace CourseBack.Controllers
         [Route("[action]")]
         [Produces("application/json")]
         [HttpPost]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public IActionResult SaveItems([FromBody] List<SavedItem> request)
         {
             var result = _savedItemsService.SaveItems(request);
@@ -162,33 +86,11 @@ namespace CourseBack.Controllers
             return BadRequest();
         }
 
-        [HttpDelete]
-        public IActionResult DeleteAllItems()
-        {
-            var result = _savedItemsService.DeleteAllItems();
-
-            if (String.IsNullOrEmpty(result))
-            {
-                return Ok();
-            }
-            return BadRequest(result);
-        }
-
-        [HttpGet("{id}")]
-        public IActionResult GetUsersItems(Guid id)
-        {
-            var result = _savedItemsService.GetUsersItems(id);
-
-            if (String.IsNullOrEmpty(result.Error))
-            {
-                return Ok(result.Items);
-            }
-            return BadRequest(result.Error);
-        }
 
         [Route("[action]")]
         [Produces("application/json")]
         [HttpGet()]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public IActionResult MakePrediction([FromQuery] string url)
         {
             List<RecognizedItem> result = _savedItemsService.MakePrediction(url);
@@ -196,6 +98,7 @@ namespace CourseBack.Controllers
             return Ok(result);
         }
 
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [Route("[action]")]
         [Produces("application/json")]
         [HttpGet()]
@@ -208,6 +111,7 @@ namespace CourseBack.Controllers
         [Route("[action]")]
         [Produces("application/json")]
         [HttpGet()]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public IActionResult GetUserItemsByCategory([FromQuery] Guid userId, String category)
         {
             var result = _savedItemsService.GetUserItemsByCategory(userId, category);

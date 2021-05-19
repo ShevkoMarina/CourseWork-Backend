@@ -198,7 +198,7 @@ namespace CourseBack.Services
 
         }
 
-        private List<RecognizedItem> ProcessResults(IReadOnlyList<YoloV4Result> results, Bitmap originalBitmap)
+        private List<RecognizedItem> ProcessResults(IReadOnlyList<YoloRecognitionResult> results, Bitmap originalBitmap)
         {
             List<RecognizedItem> items = new List<RecognizedItem>();
 

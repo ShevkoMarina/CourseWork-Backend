@@ -4,7 +4,7 @@ using System.Drawing;
 
 namespace CourseBack.Models
 {
-    public class YoloV4BitmapData
+    public class YoloImageData
     {
         [ColumnName("bitmap")]
         [ImageType(416, 416)]
