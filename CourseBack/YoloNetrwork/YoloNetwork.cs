@@ -53,7 +53,7 @@ namespace CourseBack.Services
                 var predictionEngine = mlContext.Model.CreatePredictionEngine<YoloImageData, YoloProcessor>(model);
 
                 Bitmap bitmap = DownloadImageByUrl(imageUrl);
-                // predict
+
                 var predict = predictionEngine.Predict(new YoloImageData() { Image = bitmap });
                 var results = predict.ProcessResults(classesNames, 0.3f, 0.7f);
 

@@ -81,7 +81,7 @@ namespace CourseBack.Models
                             Id = Guid.NewGuid(),
                             UserId = userId,
                             ImageUrl = imagePath ?? "",
-                            Price = itemNode.SelectSingleNode(".//span[@class='PriceValue']")?.InnerText ?? "", // знаки вопроса                                                                                   
+                            Price = itemNode.SelectSingleNode(".//span[@class='PriceValue']")?.InnerText ?? "",                                                                                    
                             Name = itemNode.SelectSingleNode(".//div[@class='CbirProduct-Title']")?.InnerText ?? "",
                             WebUrl = itemNode?.SelectSingleNode(".//a[@class='Link Link_theme_outer CbirProduct-ShopDomainLink']").Attributes["href"].Value ?? "",
                             Category = category

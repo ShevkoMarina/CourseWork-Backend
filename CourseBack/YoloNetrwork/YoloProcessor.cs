@@ -85,13 +85,12 @@ namespace CourseBack.Models
                             float predW = (float)Math.Exp(rawDw) * ANCHORS[i][a][0];
                             float predH = (float)Math.Exp(rawDh) * ANCHORS[i][a][1];
 
-                            // (1) (x, y, w, h) --> (xmin, ymin, xmax, ymax)
+                            //  (x, y, w, h) --> (xmin, ymin, xmax, ymax)
                             float predX1 = predX - predW * 0.5f;
                             float predY1 = predY - predH * 0.5f;
                             float predX2 = predX + predW * 0.5f;
                             float predY2 = predY + predH * 0.5f;
 
-                            // (2) (xmin, ymin, xmax, ymax) -> (xmin_org, ymin_org, xmax_org, ymax_org)
                             float org_h = ImageHeight;
                             float org_w = ImageWidth;
 
