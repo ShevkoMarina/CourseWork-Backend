@@ -79,7 +79,6 @@ namespace CourseBack.Models
                         var item = new SavedItem()
                         {
                             Id = Guid.NewGuid(),
-                            UserId = userId,
                             ImageUrl = imagePath ?? "",
                             Price = itemNode.SelectSingleNode(".//span[@class='PriceValue']")?.InnerText ?? "",                                                                                    
                             Name = itemNode.SelectSingleNode(".//div[@class='CbirProduct-Title']")?.InnerText ?? "",

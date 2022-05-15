@@ -23,7 +23,8 @@ namespace CourseBack.Repository
 
         public IReadOnlyCollection<SavedItem> GetSavedItems(Guid userId)
         {
-            return _context.Items.Where(i => i.UserId.ToString() == userId.ToString()).ToList();
+            User user = _context.Users.Where(u => u.Id == userId).First();
+            return user.SavedItems;
         }
     }
 }

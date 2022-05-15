@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -20,5 +21,7 @@ namespace CourseBack.Models
         [Column("user_password")]
         [MaxLength(20)]
         public string Password { get; set; }
+
+        public List<SavedItem> SavedItems { get; set; }
     }
 }

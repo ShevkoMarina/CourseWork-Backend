@@ -34,6 +34,7 @@
     <Folder Include="Assets\Models\" />
     <Folder Include="Assets\Images\" />
     <Folder Include="Assets\Temp\" />
+    <Folder Include="Migrations\" />
   </ItemGroup>
 
 

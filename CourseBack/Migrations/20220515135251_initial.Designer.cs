@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CourseBack.Migrations
 {
     [DbContext(typeof(CourseWorkDBContext))]
-    [Migration("20210114154354_InitMigration")]
-    partial class InitMigration
+    [Migration("20220515135251_initial")]
+    partial class initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -29,6 +29,11 @@ namespace CourseBack.Migrations
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("id");
 
+                    b.Property<string>("Category")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)")
+                        .HasColumnName("category");
+
                     b.Property<string>("ImageUrl")
                         .IsRequired()
                         .HasColumnType("text")
@@ -36,19 +41,17 @@ namespace CourseBack.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)")
                         .HasColumnName("name");
 
                     b.Property<string>("Price")
                         .IsRequired()
+                        .ValueGeneratedOnAdd()
                         .HasMaxLength(10)
                         .HasColumnType("nvarchar(10)")
+                        .HasDefaultValue("Нет цены")
                         .HasColumnName("price");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("user_id");
 
                     b.Property<string>("WebUrl")
                         .IsRequired()
@@ -82,6 +85,36 @@ namespace CourseBack.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("users");
+                });
+
+            modelBuilder.Entity("SavedItemUser", b =>
+                {
+                    b.Property<Guid>("SavedItemsId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("UsersId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("SavedItemsId", "UsersId");
+
+                    b.HasIndex("UsersId");
+
+                    b.ToTable("SavedItemUser");
+                });
+
+            modelBuilder.Entity("SavedItemUser", b =>
+                {
+                    b.HasOne("CourseBack.Models.SavedItem", null)
+                        .WithMany()
+                        .HasForeignKey("SavedItemsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("CourseBack.Models.User", null)
+                        .WithMany()
+                        .HasForeignKey("UsersId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

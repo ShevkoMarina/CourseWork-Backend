@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace CourseBack.Models
 {
@@ -15,14 +13,10 @@ namespace CourseBack.Models
         public Guid Id { get; set; }
 
         [Required]
-        [Column("user_id")]
-        public Guid UserId { get; set; }
-
-        [Required]
         [Column("image_url", TypeName = "text")]
         public string ImageUrl { get; set; }
 
-       
+
         [Column("category")]
         [MaxLength(200)]
         public string Category { get; set; }
@@ -40,5 +34,7 @@ namespace CourseBack.Models
         [Required]
         [Column("web_url", TypeName = "text")]
         public string WebUrl { get; set; }
+
+        public List<User> Users { get; set; }
     }
 }

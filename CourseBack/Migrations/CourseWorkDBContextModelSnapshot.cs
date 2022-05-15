@@ -51,10 +51,6 @@ namespace CourseBack.Migrations
                         .HasDefaultValue("Нет цены")
                         .HasColumnName("price");
 
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("user_id");
-
                     b.Property<string>("WebUrl")
                         .IsRequired()
                         .HasColumnType("text")
@@ -87,6 +83,36 @@ namespace CourseBack.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("users");
+                });
+
+            modelBuilder.Entity("SavedItemUser", b =>
+                {
+                    b.Property<Guid>("SavedItemsId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("UsersId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("SavedItemsId", "UsersId");
+
+                    b.HasIndex("UsersId");
+
+                    b.ToTable("SavedItemUser");
+                });
+
+            modelBuilder.Entity("SavedItemUser", b =>
+                {
+                    b.HasOne("CourseBack.Models.SavedItem", null)
+                        .WithMany()
+                        .HasForeignKey("SavedItemsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("CourseBack.Models.User", null)
+                        .WithMany()
+                        .HasForeignKey("UsersId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }
