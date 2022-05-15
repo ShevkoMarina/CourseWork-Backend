@@ -11,6 +11,8 @@ using System.IO;
 using Newtonsoft.Json;
 using System.Net;
 using System.Drawing;
+using CourseBack.Parser;
+using Microsoft.Extensions.Configuration;
 
 namespace CourseBack.Services
 {
@@ -18,19 +20,16 @@ namespace CourseBack.Services
     {
         const string containerName = "usersphotos";
         const string croppedContainer = "croppedimages";
-        // Configuration
-        const string conntectionString = "DefaultEndpointsProtocol=https;AccountName=neuralphotosblob;AccountKey=RefSuxn7AiKuRE4mkfeTWq1PY/P/" +
-           "b8UgOuZBzugzWpfwoy2TFLPWsPFyf+JyOO0NucJvcJK4aLXbnenmkh5GxQ==;EndpointSuffix=core.windows.net";
         const string currentImagePath = "currentImage.jpeg";
-
-        private static BlobServiceClient blobServiceClient = new BlobServiceClient(conntectionString);
-
-
+        private static BlobServiceClient blobServiceClient;
+        private readonly IConfiguration _configuration;
         private IRecognizedItemsRepository _recognizedItemsRepository;
 
-        public SavedItemsService(IRecognizedItemsRepository recognizedItemsRepository)
+        public SavedItemsService(IRecognizedItemsRepository recognizedItemsRepository, IConfiguration configuration)
         {
+            _configuration = configuration;
             _recognizedItemsRepository = recognizedItemsRepository;
+            blobServiceClient = new BlobServiceClient(configuration.GetConnectionString("BlobStorage"));
         }
 
         public string AddItem(RecognizeItemRequest item)
@@ -96,27 +95,32 @@ namespace CourseBack.Services
             catch (Exception ex)
             {
                 return ex.Message;
-            } 
+            }
         }
 
-        public async Task<(string Error, IEnumerable<SavedItem> items)> FindSimularGoods(string imageUrl, Guid userId, string category)
+        public async Task<(string Error, IEnumerable<SavedItem> items)> FindSimularGoods(string imageUrl, Guid userId, string category, SearchEngine engine)
         {
             try
             {
-                Parser parser = new Parser(imageUrl, userId, category);
-                var items = await parser.GetData();
-                if (items == null)
+                List<SavedItem> items = new List<SavedItem>();
+
+                if (engine == SearchEngine.Yandex || engine == SearchEngine.Both)
                 {
-                    return ("Parsing error", null);
+                    var yandexParser = new YandexParser(imageUrl, userId, category);
+                    items.AddRange((await yandexParser.GetData()).Take(6));
+                } else if (engine == SearchEngine.Google || engine == SearchEngine.Both)
+                {
+                    var googleParser = new GoogleParser(imageUrl, userId, category, _configuration["SerpApiKey"]);
+                    items.AddRange((await googleParser.GetData()).Take(6));
                 }
 
-                return (null, items.Take(6));
+                return (null, items);
             }
-            catch(NullReferenceException ex)
+            catch (NullReferenceException ex)
             {
                 return (ex.Message, null);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return (ex.Message, null);
             }
@@ -129,7 +133,7 @@ namespace CourseBack.Services
                 _recognizedItemsRepository.DeleteAllItems();
                 return null;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return (ex.Message);
             }
@@ -142,7 +146,7 @@ namespace CourseBack.Services
                 var items = _recognizedItemsRepository.GetUserItems(id);
                 return (items, null);
             }
-            catch(Exception)
+            catch (Exception)
             {
                 return (null, "Database connection error");
             }
@@ -184,8 +188,8 @@ namespace CourseBack.Services
 
                         if (bitmap != null)
                         {
-                             bitmap.Save(currentImagePath, System.Drawing.Imaging.ImageFormat.Jpeg);
-                             return (bitmap, currentImagePath);
+                            bitmap.Save(currentImagePath, System.Drawing.Imaging.ImageFormat.Jpeg);
+                            return (bitmap, currentImagePath);
                         }
                     }
                 }
@@ -205,7 +209,7 @@ namespace CourseBack.Services
             for (int i = 0; i < results.Count; i++)
             {
                 if (results[i].Confidence > 0.2)
-                {     
+                {
                     // Save cropped bitmap in temp
                     var croppedBmpUrl = SaveCroppedImage(results[i].BBox, originalBitmap, Guid.NewGuid().ToString() + ".jpg").GetAwaiter().GetResult();
 
@@ -266,7 +270,7 @@ namespace CourseBack.Services
                 List<CategoryItem> categoryItems = new List<CategoryItem>();
 
                 // "Кровать", "Тумбочка", "Стеллаж", "Стул", "Диван", "Табурет", "Стол", "Шкаф"
-                
+
 
                 for (int i = 0; i < categories.Count(); i++)
                 {
@@ -322,7 +326,7 @@ namespace CourseBack.Services
 
                 var filteredItems = items.Where(i => i.Category == category);
                 return filteredItems;
-              
+
             }
             catch (Exception)
             {

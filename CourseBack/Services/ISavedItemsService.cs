@@ -13,7 +13,7 @@ namespace CourseBack.Services
         public string AddItem(RecognizeItemRequest item);
         public (string Error, IEnumerable<SavedItem> items) GetSavedItems(Guid userId);
 
-        public Task<(string Error, IEnumerable<SavedItem> items)> FindSimularGoods(string imageUrl, Guid userId, string category);
+        public Task<(string Error, IEnumerable<SavedItem> items)> FindSimularGoods(string imageUrl, Guid userId, string category, SearchEngine engine);
 
         public string DeleteAllItems();
 

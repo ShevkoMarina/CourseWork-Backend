@@ -30,13 +30,13 @@ namespace CourseBack.Controllers
 
         [Route("[action]")]
         [HttpPost]
-      [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> FindSimilarByUrl([FromBody] FindSimilarRequest request)
         {
             List<SavedItem> similarItems = new List<SavedItem>();
             foreach (var item in request.items)
             {
-                var similarGoodsResult = await _savedItemsService.FindSimularGoods(item.ImageUri, Guid.Parse(request.UserId), item.Category);
+                var similarGoodsResult = await _savedItemsService.FindSimularGoods(item.ImageUri, Guid.Parse(request.UserId), item.Category, request.Engine);
 
                 if (similarGoodsResult.items != null)
                 {

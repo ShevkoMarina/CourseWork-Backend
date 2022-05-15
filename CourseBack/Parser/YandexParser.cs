@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using HtmlAgilityPack;
 using System.Threading.Tasks;
 using System.Net.Http;
+using CourseBack.Models;
 
-namespace CourseBack.Models
+namespace CourseBack.Parser
 {
-    public class Parser
+    public class YandexParser
     {
         private string imageUrl;
         private const string baseUrl = "https://yandex.ru/images/search?rpt=imageview&url="; 
@@ -16,7 +17,7 @@ namespace CourseBack.Models
 
         public static HttpClient Client { get; set; } = new HttpClient();
 
-        public Parser(string imageUrl, Guid userId, string category)
+        public YandexParser(string imageUrl, Guid userId, string category)
         {
             this.imageUrl = imageUrl;
             this.userId = userId;
