@@ -1,15 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using Azure.Storage.Blobs;
 using CourseBack.Models;
-using System.IO;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using System.Net.Mail;
-using Azure.Storage.Blobs.Models;
-using Newtonsoft.Json;
 using CourseBack.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -30,7 +23,7 @@ namespace CourseBack.Controllers
 
         [Route("[action]")]
         [HttpPost]
-      [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> FindSimilarByUrl([FromBody] FindSimilarRequest request)
         {
             List<SavedItem> similarItems = new List<SavedItem>();
@@ -119,10 +112,6 @@ namespace CourseBack.Controllers
         }
     }
 }
-
-
-
-
 
 
 
